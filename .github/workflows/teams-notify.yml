@@ -1,11 +1,7 @@
 name: Teams 당번 알림
 
 on:
-  schedule:
-    - cron: '0 0 * * 1-5'    # 09:00 KST
-    - cron: '30 0 * * 1-5'   # 09:30 KST (재시도)
-    - cron: '0 1 * * 1-5'    # 10:00 KST (재시도)
-  workflow_dispatch:          # 수동 테스트용
+  workflow_dispatch:          # 외부 크론(cron-job.org)이 09:00 KST에 호출
 
 jobs:
   notify:
