@@ -766,11 +766,18 @@
         curMonth = now.getMonth();
       }
       renderLegend();
-      render();
+
+      // Firebase 데이터 먼저 받고 렌더링 (깜빡임 방지)
+      document.getElementById('calBody').innerHTML =
+        '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#a0aec0;font-size:14px;">불러오는 중...</div>';
+
+      let firstLoad = true;
+      const fallback = setTimeout(() => { if (firstLoad) { firstLoad = false; render(); } }, 2000);
 
       // 실시간 동기화
       schRef.on('value', snapshot => {
         schedule = snapshot.val() || {};
+        if (firstLoad) { firstLoad = false; clearTimeout(fallback); }
         render();
       });
 
