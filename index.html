@@ -673,7 +673,6 @@
       if (dow === 0 || dow === 6) return;
       closePicker();
 
-      const { y, m, d } = parseKey(key);
       const current = getPerson(y, m, d);
 
       const picker = document.createElement('div');
