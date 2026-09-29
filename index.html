@@ -283,6 +283,19 @@
 
     .picker-reset:hover { background: #f7fafc; color: #718096; }
 
+    .holiday-add-btn {
+      font-size: 11px;
+      color: #e53e3e;
+      border: 1px dashed #feb2b2;
+      border-radius: 8px;
+      padding: 4px 8px;
+      text-align: center;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.15s;
+    }
+    .holiday-add-btn:hover { opacity: 1; background: #fff5f5; }
+
     /* Connection status */
     .conn-badge {
       position: fixed;
@@ -447,7 +460,7 @@
       '2026-06-03': '지방선거일', '2026-06-06': '현충일',
       '2026-07-17': '제헌절',
       '2026-08-15': '광복절', '2026-08-17': '광복절 대체',
-      '2026-09-24': '추석 전날*', '2026-09-25': '추석*', '2026-09-26': '추석 다음날*', '2026-09-28': '추석 대체*',
+      '2026-09-24': '추석 전날*', '2026-09-25': '추석*', '2026-09-26': '추석 다음날*',
       '2026-10-03': '개천절', '2026-10-05': '개천절 대체', '2026-10-09': '한글날', '2026-12-25': '크리스마스',
       '2027-01-01': '신정',
       '2027-02-06': '설날 전날*', '2027-02-07': '설날*', '2027-02-08': '설날 다음날*', '2027-02-09': '설날 대체*',
@@ -609,6 +622,9 @@
         const cellDate  = new Date(curYear, curMonth, d);
         const isToday   = key === todayKey;
         const isWorkday = !isWeekend && !holiday && cellDate >= START;
+        const hasOverride = schedule[key] !== undefined;
+        const showBadge = !isWeekend && cellDate >= START && (isWorkday || hasOverride);
+        const isInteractive = !isWeekend && cellDate >= START;
 
         let cls = 'cell';
         if (isWeekend) cls += ' weekend';
@@ -618,7 +634,7 @@
         const holTag   = holiday ? `<div class="holiday-tag">${holiday}</div>` : '';
         let badgeHtml  = '';
 
-        if (isWorkday) {
+        if (showBadge) {
           const p = personObj(getPerson(curYear, curMonth, d));
           badgeHtml = `
             <div class="badge"
@@ -628,9 +644,11 @@
               ondragend="onDragEnd(event)"
               onclick="showPicker(event,'${key}')"
             >${p.name}<small>${p.nick}</small></div>`;
+        } else if (holiday && isInteractive && editMode) {
+          badgeHtml = `<div class="holiday-add-btn" onclick="showPicker(event,'${key}')">+ 당번</div>`;
         }
 
-        const dropEvts = isWorkday
+        const dropEvts = isInteractive
           ? `ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'${key}')"`
           : '';
 
@@ -650,6 +668,9 @@
     function showPicker(e, key) {
       e.stopPropagation();
       if (!editMode) return;
+      const { y, m, d } = parseKey(key);
+      const dow = new Date(y, m, d).getDay();
+      if (dow === 0 || dow === 6) return;
       closePicker();
 
       const { y, m, d } = parseKey(key);
